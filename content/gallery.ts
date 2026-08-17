@@ -1,0 +1,121 @@
+/**
+ * The Archive is built from stills of officially uploaded YouTube videos
+ * (see content/videos.ts for the same provenance rule) — never scraped or
+ * re-hosted photography. Each card links back to its source video.
+ */
+import type { GalleryItem } from "./types";
+
+export const gallery: GalleryItem[] = [
+  {
+    id: "g-time-to-rise",
+    category: "cultural",
+    title: "Time To Rise — National Museum of Cambodia",
+    youtubeId: "rvje5oblrLw",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=rvje5oblrLw",
+  },
+  {
+    id: "g-coda",
+    category: "music-video",
+    title: "C.O.D.A",
+    youtubeId: "VYLM-vpdQ1A",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=VYLM-vpdQ1A",
+  },
+  {
+    id: "g-golden-land",
+    category: "cultural",
+    title: "សុវណ្ណភូមិ (Golden Land)",
+    youtubeId: "jFVfxBQjMFU",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=jFVfxBQjMFU",
+  },
+  {
+    id: "g-sangkran-magic",
+    category: "cultural",
+    title: "សង្រ្កាន្តស្គាល់ស្នេហ៍ (Sangkran Magic)",
+    youtubeId: "Cpo3DmbdCxs",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=Cpo3DmbdCxs",
+  },
+  {
+    id: "g-no-disrespect",
+    category: "music-video",
+    title: "No Disrespect",
+    youtubeId: "7t0qrQ0o42M",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=7t0qrQ0o42M",
+  },
+  {
+    id: "g-blue-story",
+    category: "music-video",
+    title: "Blue Story",
+    youtubeId: "0jSgcE-sxeo",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=0jSgcE-sxeo",
+  },
+  {
+    id: "g-day-dreamer",
+    category: "music-video",
+    title: "សុបិនទាំងថ្ងៃ (Day Dreamer)",
+    youtubeId: "KyrXi-q2bBY",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=KyrXi-q2bBY",
+  },
+  {
+    id: "g-mama",
+    category: "music-video",
+    title: "ម្តាយ (MAMA) ft. ក្មេងខ្មែរ",
+    youtubeId: "WNL3zDgWZc0",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=WNL3zDgWZc0",
+  },
+  {
+    id: "g-baby-mama",
+    category: "music-video",
+    title: "Baby Mama",
+    youtubeId: "Jbt5dRYFOPo",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=Jbt5dRYFOPo",
+  },
+  {
+    id: "g-run-the-town",
+    category: "performance",
+    title: "Run The Town ft. F.HERO, 1MILL & Sprite",
+    youtubeId: "UwE8RPbPmrI",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=UwE8RPbPmrI",
+  },
+  {
+    id: "g-legacy",
+    category: "performance",
+    title: "ចងចាំសាវតារ (Legacy) — Baramey Crew",
+    youtubeId: "StNAenr4rVY",
+    attribution: "Baramey Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=StNAenr4rVY",
+  },
+  {
+    id: "g-khmer-gentlemen",
+    category: "performance",
+    title: "កម្លោះស្រុកខ្មែរ (Khmer Gentlemen) ft. Vanthan",
+    youtubeId: "fJuJ6GW0UEk",
+    attribution: "Vanthan Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=fJuJ6GW0UEk",
+  },
+  {
+    id: "g-6-years",
+    category: "performance",
+    title: "6 Years In The Game ft. Awich",
+    youtubeId: "UAoI1SyWprI",
+    attribution: "VannDa Official — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=UAoI1SyWprI",
+  },
+  {
+    id: "g-asian-state-of-mind",
+    category: "performance",
+    title: "Asian State Of Mind",
+    youtubeId: "QRnO04UwnM0",
+    attribution: "Awich — YouTube",
+    sourceUrl: "https://www.youtube.com/watch?v=QRnO04UwnM0",
+  },
+];

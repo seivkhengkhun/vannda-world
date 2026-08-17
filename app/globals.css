@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-void: #0a0908;
+  --color-surface: #16130f;
+  --color-raised: #201b15;
+  --color-raised-2: #2a231b;
+  --color-ink: #f5f1e8;
+  --color-ink-dim: #a8a096;
+  --color-ink-faint: #6f695f;
+  --color-gold: #c6a662;
+  --color-gold-bright: #e4c077;
+  --color-red: #7a2e2e;
+  --color-hairline: rgba(245, 241, 232, 0.08);
+  --color-hairline-strong: rgba(245, 241, 232, 0.16);
+
+  --font-display: var(--font-unbounded), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-khmer: var(--font-kantumruy), system-ui, sans-serif;
+
+  --animate-fade-up: fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-drift: drift 22s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(2%, -3%, 0);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-void);
+}
+
+* {
+  scrollbar-color: var(--color-raised-2) transparent;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+.khmer {
+  font-family: var(--font-khmer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
