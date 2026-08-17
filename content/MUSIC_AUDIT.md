@@ -65,10 +65,18 @@ and the rest of the catalogue:
   sources only agreed on a month — these are labeled at month precision
   rather than a guessed day (e.g. "Hero 2 Villain," "Blue Story": "August
   2026").
-- Streaming/YouTube URLs were not re-fetched a second time immediately
-  before publishing to confirm they still 200 OK — each was either fetched
-  directly (Spotify/Apple Music/Deezer album pages) or passed YouTube's
-  oEmbed check (which fails on removed/private videos) at verification time.
+- All 79 external URLs referenced across `content/*.ts` were batch-checked
+  with a live HTTP request on 2026-08-17. 76 returned 200. One dead Apple
+  Music link for *$kull the Album* (a stale catalogue ID, 404) was found and
+  replaced with the album's current ID, confirmed 200. The two official
+  Facebook links (`facebook.com/vanndaofficialpage`, and the Baramey Official
+  post cited for the August 2026 singles) return HTTP 400 to automated
+  requests regardless of user-agent — consistent with Facebook's routine
+  bot-blocking of non-browser clients, not necessarily evidence the pages
+  are actually broken for real visitors. Both were originally sourced
+  directly (the handle from baramey.com's own listing), so they're kept, but
+  are flagged here as unverifiable by automated fetch rather than silently
+  presented as confirmed.
 
 ## Structural integrity (checked programmatically)
 

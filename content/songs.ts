@@ -5,7 +5,7 @@ const BARAMEY: Source = { label: "Baramey Production — VannDa", url: "https://
 
 const SKULL_ALBUM_SOURCES: Source[] = [
   { label: "Deezer — $kull the Album", url: "https://www.deezer.com/en/album/156253922" },
-  { label: "Apple Music — $kull the Album", url: "https://music.apple.com/us/album/$kull-the-album/1519844558" },
+  { label: "Apple Music — $kull the Album", url: "https://music.apple.com/us/album/$kull-the-album/1800389469" },
 ];
 const SKULL2_SOURCES: Source[] = [
   { label: "Deezer — SKULL 2 (Season 1)", url: "https://www.deezer.com/en/album/722944861" },
