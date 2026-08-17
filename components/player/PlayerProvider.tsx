@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { songs } from "@/content/songs";
 import { cn } from "@/lib/utils";
+import { buildSmartQueue, pickRandomSeed, type MixMode } from "@/lib/smart-mix";
 
 interface YTPlayerInstance {
   playVideo(): void;
@@ -55,6 +56,8 @@ declare global {
 }
 
 const defaultQueue = songs.filter((s) => s.youtubeId).map((s) => s.slug);
+const CROSSFADE_DURATIONS = [3, 5, 8, 10] as const;
+export type CrossfadeDuration = (typeof CROSSFADE_DURATIONS)[number];
 
 interface Progress {
   current: number;
@@ -78,6 +81,20 @@ interface PlayerContextValue {
   setVolume: (v: number) => void;
   toggleMute: () => void;
   setExpanded: (v: boolean) => void;
+  // Smart Mix
+  smartMixEnabled: boolean;
+  toggleSmartMix: () => void;
+  mixMode: MixMode;
+  setMixMode: (m: MixMode) => void;
+  crossfadeEnabled: boolean;
+  setCrossfadeEnabled: (v: boolean) => void;
+  crossfadeDuration: CrossfadeDuration;
+  setCrossfadeDuration: (v: CrossfadeDuration) => void;
+  smartQueue: string[];
+  isTransitioning: boolean;
+  removeFromSmartQueue: (slug: string) => void;
+  shuffleSmartQueue: () => void;
+  regenerateSmartQueue: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -95,6 +112,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<Progress>({ current: 0, duration: 0 });
   const [portalReady, setPortalReady] = useState(false);
 
+  const [smartMixEnabled, setSmartMixEnabled] = useState(false);
+  const [mixMode, setMixModeState] = useState<MixMode>("vibe");
+  const [crossfadeEnabled, setCrossfadeEnabledState] = useState(true);
+  const [crossfadeDuration, setCrossfadeDurationState] = useState<CrossfadeDuration>(5);
+  const [smartQueue, setSmartQueue] = useState<string[]>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const mountRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayerInstance | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -103,6 +127,40 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     isExpandedRef.current = isExpanded;
   }, [isExpanded]);
+
+  // Latest-ref mirrors so imperative callbacks (YT event handlers, fade
+  // timers) never close over stale values.
+  const smartMixEnabledRef = useRef(smartMixEnabled);
+  const mixModeRef = useRef(mixMode);
+  const crossfadeEnabledRef = useRef(crossfadeEnabled);
+  const crossfadeDurationRef = useRef<CrossfadeDuration>(crossfadeDuration);
+  const volumeRef = useRef(volume);
+  const smartQueueRef = useRef<string[]>(smartQueue);
+  const transitioningRef = useRef(false);
+  const smartHistoryRef = useRef<string[]>([]);
+  const fadeTimersRef = useRef<number[]>([]);
+  const currentSlugRef = useRef<string | null>(currentSlug);
+  useEffect(() => {
+    currentSlugRef.current = currentSlug;
+  }, [currentSlug]);
+  useEffect(() => {
+    smartMixEnabledRef.current = smartMixEnabled;
+  }, [smartMixEnabled]);
+  useEffect(() => {
+    mixModeRef.current = mixMode;
+  }, [mixMode]);
+  useEffect(() => {
+    crossfadeEnabledRef.current = crossfadeEnabled;
+  }, [crossfadeEnabled]);
+  useEffect(() => {
+    crossfadeDurationRef.current = crossfadeDuration;
+  }, [crossfadeDuration]);
+  useEffect(() => {
+    volumeRef.current = volume;
+  }, [volume]);
+  useEffect(() => {
+    smartQueueRef.current = smartQueue;
+  }, [smartQueue]);
 
   // The YouTube IFrame API takes over its mount element and replaces it with a
   // real <iframe>, outside React's knowledge. Portaling that mount point
@@ -137,12 +195,27 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
           volume?: number;
           muted?: boolean;
           queue?: string[];
+          smartMixEnabled?: boolean;
+          mixMode?: MixMode;
+          crossfadeEnabled?: boolean;
+          crossfadeDuration?: CrossfadeDuration;
         };
         /* eslint-disable react-hooks/set-state-in-effect */
         if (saved.queue?.length) setQueue(saved.queue);
         if (saved.slug) setCurrentSlug(saved.slug);
         if (typeof saved.volume === "number") setVolumeState(saved.volume);
         if (typeof saved.muted === "boolean") setMutedState(saved.muted);
+        if (saved.mixMode) setMixModeState(saved.mixMode);
+        if (typeof saved.crossfadeEnabled === "boolean") setCrossfadeEnabledState(saved.crossfadeEnabled);
+        if (saved.crossfadeDuration && CROSSFADE_DURATIONS.includes(saved.crossfadeDuration)) {
+          setCrossfadeDurationState(saved.crossfadeDuration);
+        }
+        if (saved.smartMixEnabled) {
+          setSmartMixEnabled(true);
+          const seed = saved.slug ? songs.find((s) => s.slug === saved.slug) : undefined;
+          const generated = buildSmartQueue({ seed, mode: saved.mixMode ?? "vibe", pool: songs, length: 25 });
+          setSmartQueue(generated.map((s) => s.slug));
+        }
         /* eslint-enable react-hooks/set-state-in-effect */
       }
     } catch {
@@ -150,13 +223,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Persist state
+  // Persist state. Skip the very first run: it fires in the same initial
+  // effects pass as the restore effect above, with this render's still-default
+  // closure values, and would otherwise immediately clobber whatever the
+  // restore effect just read from localStorage before it can take effect.
+  const skippedFirstPersistRef = useRef(false);
   useEffect(() => {
+    if (!skippedFirstPersistRef.current) {
+      skippedFirstPersistRef.current = true;
+      return;
+    }
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ slug: currentSlug, volume, muted, queue }),
+      JSON.stringify({ slug: currentSlug, volume, muted, queue, smartMixEnabled, mixMode, crossfadeEnabled, crossfadeDuration }),
     );
-  }, [currentSlug, volume, muted, queue]);
+  }, [currentSlug, volume, muted, queue, smartMixEnabled, mixMode, crossfadeEnabled, crossfadeDuration]);
 
   // Load YouTube IFrame API + create the player exactly once. `volume`/`muted`/
   // `applyIframeStyle` are intentionally read only for the player's one-time
@@ -186,7 +267,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
             if (e.data === window.YT.PlayerState.PAUSED) setIsPlaying(false);
             if (e.data === window.YT.PlayerState.ENDED) {
               setIsPlaying(false);
-              nextRef.current();
+              handleTrackEndRef.current();
             }
           },
         },
@@ -237,9 +318,102 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       } else {
         pendingSlugRef.current = slug;
       }
+      // A manually-chosen song while Smart Mix is on should redirect the
+      // session from here, not reset it randomly.
+      if (smartMixEnabledRef.current) {
+        const generated = buildSmartQueue({ seed: song, mode: mixModeRef.current, pool: songs, length: 25 });
+        setSmartQueue(generated.map((s) => s.slug));
+        smartHistoryRef.current = [];
+      }
     },
     [isReady, queue],
   );
+  const playSongRef = useRef(playSong);
+  useEffect(() => {
+    playSongRef.current = playSong;
+  }, [playSong]);
+
+  const clearFadeTimers = useCallback(() => {
+    for (const id of fadeTimersRef.current) window.clearInterval(id);
+    fadeTimersRef.current = [];
+  }, []);
+
+  /** Advances to the next Smart Mix track without touching the manual `queue`. */
+  const advanceSmartQueueInternal = useCallback(() => {
+    const sq = smartQueueRef.current;
+    const nextSlug = sq[0];
+    if (!nextSlug) return;
+    const song = songs.find((s) => s.slug === nextSlug);
+    if (!song?.youtubeId) return;
+
+    if (currentSlugRef.current) {
+      smartHistoryRef.current = [...smartHistoryRef.current, currentSlugRef.current].slice(-20);
+    }
+    setCurrentSlug(nextSlug);
+    playerRef.current?.loadVideoById(song.youtubeId);
+    playerRef.current?.playVideo();
+
+    const rest = sq.slice(1);
+    if (rest.length < 6) {
+      const additional = buildSmartQueue({ seed: song, mode: mixModeRef.current, pool: songs, length: 15 });
+      setSmartQueue([...new Set([...rest, ...additional.map((s) => s.slug)])]);
+    } else {
+      setSmartQueue(rest);
+    }
+  }, []);
+
+  /** Fade the current track out, switch, then fade the new one in. */
+  const beginSmartTransition = useCallback(() => {
+    if (transitioningRef.current) return;
+    if (!smartQueueRef.current.length) return;
+    transitioningRef.current = true;
+    setIsTransitioning(true);
+
+    const target = volumeRef.current;
+    const totalMs = crossfadeDurationRef.current * 1000;
+    const steps = 20;
+    const stepMs = totalMs / steps;
+    let i = 0;
+
+    const fadeOut = window.setInterval(() => {
+      i++;
+      playerRef.current?.setVolume(Math.max(0, target * (1 - i / steps)));
+      if (i >= steps) {
+        window.clearInterval(fadeOut);
+        advanceSmartQueueInternal();
+
+        const resumeTimeout = window.setTimeout(() => {
+          let j = 0;
+          const fadeIn = window.setInterval(() => {
+            j++;
+            playerRef.current?.setVolume(Math.min(target, target * (j / steps)));
+            if (j >= steps) {
+              window.clearInterval(fadeIn);
+              transitioningRef.current = false;
+              setIsTransitioning(false);
+            }
+          }, stepMs);
+          fadeTimersRef.current.push(fadeIn);
+        }, 350);
+        fadeTimersRef.current.push(resumeTimeout as unknown as number);
+      }
+    }, stepMs);
+    fadeTimersRef.current.push(fadeOut);
+  }, [advanceSmartQueueInternal]);
+  const beginSmartTransitionRef = useRef(beginSmartTransition);
+  useEffect(() => {
+    beginSmartTransitionRef.current = beginSmartTransition;
+  }, [beginSmartTransition]);
+
+  // Watch playback progress to trigger a Smart Mix fade near the end of a track.
+  useEffect(() => {
+    if (!smartMixEnabled || !crossfadeEnabled || !isPlaying) return;
+    if (transitioningRef.current) return;
+    const remaining = progress.duration - progress.current;
+    if (progress.duration > 0 && remaining > 0 && remaining <= crossfadeDuration) {
+      beginSmartTransitionRef.current();
+    }
+  }, [progress, smartMixEnabled, crossfadeEnabled, isPlaying, crossfadeDuration]);
 
   const togglePlay = useCallback(() => {
     const p = playerRef.current;
@@ -248,11 +422,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       p.pauseVideo();
     } else if (currentSlug) {
       p.playVideo();
+    } else if (smartMixEnabled && smartQueue[0]) {
+      playSong(smartQueue[0]);
+      window.setTimeout(() => playerRef.current?.playVideo(), 300);
     } else if (queue[0]) {
       playSong(queue[0]);
       window.setTimeout(() => playerRef.current?.playVideo(), 300);
     }
-  }, [isPlaying, currentSlug, queue, playSong]);
+  }, [isPlaying, currentSlug, queue, playSong, smartMixEnabled, smartQueue]);
 
   const step = useCallback(
     (dir: 1 | -1) => {
@@ -268,16 +445,38 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     [currentSlug, queue, playSong],
   );
 
-  const next = useCallback(() => step(1), [step]);
-  const previous = useCallback(() => step(-1), [step]);
-  // "Latest ref" pattern: the YouTube player is only constructed once (mount-only
-  // effect below), so its onStateChange(ENDED) handler needs a stable way to reach
-  // the current `next`, which itself changes whenever the queue does.
-  const nextRef = useRef(next);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/immutability -- see comment above
-    nextRef.current = next;
-  }, [next]);
+  const next = useCallback(() => {
+    if (smartMixEnabledRef.current) {
+      clearFadeTimers();
+      transitioningRef.current = false;
+      setIsTransitioning(false);
+      if (currentSlugRef.current) playerRef.current?.setVolume(volumeRef.current);
+      advanceSmartQueueInternal();
+      return;
+    }
+    step(1);
+  }, [step, advanceSmartQueueInternal, clearFadeTimers]);
+
+  const previous = useCallback(() => {
+    if (smartMixEnabledRef.current) {
+      const history = smartHistoryRef.current;
+      const prevSlug = history[history.length - 1];
+      if (prevSlug) {
+        const song = songs.find((s) => s.slug === prevSlug);
+        if (song?.youtubeId) {
+          smartHistoryRef.current = history.slice(0, -1);
+          if (currentSlugRef.current) {
+            setSmartQueue((sq) => [currentSlugRef.current as string, ...sq]);
+          }
+          setCurrentSlug(prevSlug);
+          playerRef.current?.loadVideoById(song.youtubeId);
+          playerRef.current?.playVideo();
+          return;
+        }
+      }
+    }
+    step(-1);
+  }, [step]);
 
   const seek = useCallback((seconds: number) => {
     playerRef.current?.seekTo(seconds, true);
@@ -303,6 +502,79 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const setExpanded = useCallback((v: boolean) => setIsExpanded(v), []);
 
+  const toggleSmartMix = useCallback(() => {
+    setSmartMixEnabled((was) => {
+      const enabling = !was;
+      if (enabling) {
+        const seed = currentSlugRef.current
+          ? songs.find((s) => s.slug === currentSlugRef.current)
+          : pickRandomSeed(songs.filter((s) => Boolean(s.youtubeId)));
+        const generated = buildSmartQueue({ seed, mode: mixModeRef.current, pool: songs, length: 25 });
+        setSmartQueue(generated.map((s) => s.slug));
+        smartHistoryRef.current = [];
+        if (!currentSlugRef.current && seed) {
+          playSongRef.current(seed.slug);
+          window.setTimeout(() => playerRef.current?.playVideo(), 300);
+        }
+      } else {
+        clearFadeTimers();
+        transitioningRef.current = false;
+        setIsTransitioning(false);
+        playerRef.current?.setVolume(volumeRef.current);
+      }
+      return enabling;
+    });
+  }, [clearFadeTimers]);
+
+  const setMixMode = useCallback((m: MixMode) => {
+    setMixModeState(m);
+    if (smartMixEnabledRef.current) {
+      const seed = currentSlugRef.current ? songs.find((s) => s.slug === currentSlugRef.current) : undefined;
+      const generated = buildSmartQueue({ seed, mode: m, pool: songs, length: 25 });
+      setSmartQueue(generated.map((s) => s.slug));
+    }
+  }, []);
+
+  const setCrossfadeEnabled = useCallback((v: boolean) => setCrossfadeEnabledState(v), []);
+  const setCrossfadeDuration = useCallback((v: CrossfadeDuration) => setCrossfadeDurationState(v), []);
+
+  const removeFromSmartQueue = useCallback((slug: string) => {
+    setSmartQueue((sq) => sq.filter((s) => s !== slug));
+  }, []);
+
+  const shuffleSmartQueue = useCallback(() => {
+    setSmartQueue((sq) => {
+      const copy = [...sq];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    });
+  }, []);
+
+  const regenerateSmartQueue = useCallback(() => {
+    const seed = currentSlugRef.current ? songs.find((s) => s.slug === currentSlugRef.current) : undefined;
+    const generated = buildSmartQueue({ seed, mode: mixModeRef.current, pool: songs, length: 25 });
+    setSmartQueue(generated.map((s) => s.slug));
+  }, []);
+
+  // Stable handler the YT onStateChange(ENDED) callback can always reach.
+  // "Latest ref" pattern: the YouTube player is only constructed once, so its
+  // ENDED handler needs a stable way to reach current step/advance logic.
+  const handleTrackEndRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability -- see comment above
+    handleTrackEndRef.current = () => {
+      if (transitioningRef.current) return; // the fade engine is already advancing
+      if (smartMixEnabledRef.current) {
+        advanceSmartQueueInternal();
+      } else {
+        step(1);
+      }
+    };
+  }, [step, advanceSmartQueueInternal]);
+
   return (
     <PlayerContext.Provider
       value={{
@@ -322,6 +594,19 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         setVolume,
         toggleMute,
         setExpanded,
+        smartMixEnabled,
+        toggleSmartMix,
+        mixMode,
+        setMixMode,
+        crossfadeEnabled,
+        setCrossfadeEnabled,
+        crossfadeDuration,
+        setCrossfadeDuration,
+        smartQueue,
+        isTransitioning,
+        removeFromSmartQueue,
+        shuffleSmartQueue,
+        regenerateSmartQueue,
       }}
     >
       {children}

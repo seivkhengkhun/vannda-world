@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX, ChevronUp } from "lucide-react";
+import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX, ChevronUp, Sparkles } from "lucide-react";
 import { usePlayer } from "./PlayerProvider";
 import { songs } from "@/content/songs";
 import { ytThumbnail } from "@/lib/youtube";
@@ -35,7 +35,10 @@ export function MiniPlayer() {
       )}
     >
       <div className="h-0.5 w-full bg-raised-2">
-        <div className="h-full bg-gold transition-[width]" style={{ width: `${pct}%` }} />
+        <div
+          className={cn("h-full transition-[width]", player.isTransitioning ? "bg-gold/50" : "bg-gold")}
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
         <button
@@ -49,7 +52,7 @@ export function MiniPlayer() {
                 alt=""
                 fill
                 sizes="48px"
-                className="object-cover"
+                className={cn("object-cover transition-opacity duration-500", player.isTransitioning && "opacity-60")}
                 unoptimized
               />
             </span>
@@ -57,9 +60,28 @@ export function MiniPlayer() {
           <span className="min-w-0">
             <span className="block truncate font-display text-sm tracking-wide text-ink">{song.title}</span>
             <span className="block truncate text-xs text-ink-dim">
-              {song.featuring.length ? `${t.common.featuring} ${song.featuring.join(", ")}` : t.player.nowPlaying}
+              {player.isTransitioning
+                ? "Smart transition…"
+                : song.featuring.length
+                  ? `${t.common.featuring} ${song.featuring.join(", ")}`
+                  : t.player.nowPlaying}
             </span>
           </span>
+        </button>
+
+        <button
+          aria-label="Smart Mix"
+          aria-pressed={player.smartMixEnabled}
+          onClick={player.toggleSmartMix}
+          className={cn(
+            "hidden shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-display text-[10px] uppercase tracking-[0.15em] transition-colors sm:flex",
+            player.smartMixEnabled
+              ? "border-gold bg-gold/10 text-gold"
+              : "border-hairline-strong text-ink-faint hover:text-ink-dim",
+          )}
+        >
+          <Sparkles size={13} className={player.smartMixEnabled ? "fill-gold" : ""} />
+          Smart Mix
         </button>
 
         <div className="flex items-center gap-1 sm:gap-2">
