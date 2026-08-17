@@ -25,6 +25,7 @@ const ERA_LABELS: Record<Era, string> = {
   "baramey-crew": "Baramey Crew",
   treyvisai: "TREYVISAI",
   global: "Global",
+  current: "Current Era",
 };
 
 export function buildUniverseGraph(): { nodes: UniverseNode[]; edges: UniverseEdge[] } {
@@ -61,7 +62,8 @@ export function buildUniverseGraph(): { nodes: UniverseNode[]; edges: UniverseEd
       edges.push({ source: `era:${song.era}`, target: id });
     }
 
-    for (const collaborator of song.featuring) {
+    const collaborators = song.primaryArtist ? [song.primaryArtist, ...song.featuring] : song.featuring;
+    for (const collaborator of collaborators) {
       const collabId = `collab:${collaborator}`;
       addNode({ id: collabId, kind: "collaborator", label: collaborator, ref: collaborator });
       edges.push({ source: id, target: collabId });

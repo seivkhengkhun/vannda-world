@@ -38,7 +38,7 @@ export function EnterGate() {
         <motion.div
           exit={{ opacity: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-void"
+          className="fixed inset-0 z-100 flex items-center justify-center overflow-hidden bg-void"
         >
           <motion.div
             initial={{ scale: 1.08, opacity: 0 }}
@@ -74,7 +74,7 @@ export function EnterGate() {
             <p className="mb-5 font-display text-[11px] uppercase tracking-[0.4em] text-gold">
               {t.enter.kicker}
             </p>
-            <h1 className="font-display text-6xl tracking-[0.05em] text-ink sm:text-8xl md:text-9xl">
+            <h1 className="font-display text-6xl tracking-wider text-ink sm:text-8xl md:text-9xl">
               {t.enter.title}
             </h1>
             <p className="mt-4 font-display text-sm uppercase tracking-[0.5em] text-ink-dim sm:text-base">

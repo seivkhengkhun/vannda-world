@@ -138,4 +138,33 @@ export const timeline: TimelineEvent[] = [
     youtubeId: "QRnO04UwnM0",
     sources: [WIKI],
   },
+  {
+    id: "treyvisai-trilogy-completes",
+    year: 2025,
+    dateLabel: "May 15, 2025",
+    title: "TREYVISAI trilogy completes",
+    description:
+      "VannDa closes out the three-part TREYVISAI project with \"III: Return to Sovannaphum,\" centered on the cinematic pairing of \"Golden Land\" and \"Varman Blood.\"",
+    relatedSongSlug: "golden-land",
+    youtubeId: "jFVfxBQjMFU",
+    sources: [
+      {
+        label: "Apple Music — TREYVISAI III",
+        url: "https://music.apple.com/us/album/treyvisai-iii-return-to-sovannaphum/1811895318",
+      },
+    ],
+  },
+  {
+    id: "2026-era",
+    year: 2026,
+    dateLabel: "2026",
+    title: "A new run of singles",
+    description:
+      "VannDa opens 2026 with \"Neon Light\" on his birthday, followed by \"New Cut,\" a collaboration with Norith on \"Decade of Love,\" \"Back Home,\" and — most recently — \"Do You,\" \"Hero 2 Villain,\" and \"Blue Story.\"",
+    relatedSongSlug: "neon-light",
+    youtubeId: "uv4JKlL1o84",
+    sources: [
+      { label: "Apple Music — Neon Light", url: "https://music.apple.com/gb/song/neon-light/1870831008" },
+    ],
+  },
 ];

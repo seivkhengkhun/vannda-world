@@ -10,19 +10,37 @@ export type Era =
   | "breakthrough"
   | "baramey-crew"
   | "treyvisai"
-  | "global";
+  | "global"
+  | "current";
+
+/**
+ * How a song relates to VannDa's own catalogue:
+ * - "album-track": part of one of his albums/mini-albums (see Song.albumSlug)
+ * - "single": his own standalone release, not part of an album
+ * - "collaboration": jointly billed with another artist (e.g. "F.HERO x VannDa")
+ * - "featured": another artist's release on which VannDa appears as a guest
+ */
+export type SongCategory = "album-track" | "single" | "collaboration" | "featured";
 
 export interface Song {
   slug: string;
   title: string;
   titleKm?: string;
+  category: SongCategory;
   era: Era;
   releaseYear: number;
   releaseDateLabel: string;
   albumSlug?: string;
+  trackNumber?: number;
+  durationSeconds?: number;
+  /** For "featured": who the primary/lead artist is (their release, not VannDa's). */
+  primaryArtist?: string;
   featuring: string[];
   youtubeId?: string;
   youtubeChannel?: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
+  deezerUrl?: string;
   about: string;
   aboutKm?: string;
   fanInterpretation?: string;
@@ -40,8 +58,13 @@ export interface Album {
   releaseDateLabel: string;
   description: string;
   descriptionKm?: string;
-  notableTrackSlugs: string[];
+  /** Complete, ordered tracklist — every slug must exist in songs.ts. */
+  trackSlugs: string[];
+  totalTracks: number;
   coverYoutubeId: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
+  deezerUrl?: string;
   sources: Source[];
 }
 

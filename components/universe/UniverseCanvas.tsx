@@ -229,7 +229,7 @@ export function UniverseCanvas() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative h-[70vh] min-h-[440px] w-full overflow-hidden rounded-xl border border-hairline bg-surface">
+    <div ref={containerRef} className="relative h-[70vh] min-h-110 w-full overflow-hidden rounded-xl border border-hairline bg-surface">
       <canvas ref={canvasRef} className="cursor-grab touch-none active:cursor-grabbing" />
       <div className="pointer-events-none absolute left-4 top-4 font-display text-[10px] uppercase tracking-[0.2em] text-ink-faint">
         Drag · Scroll to zoom · Click a node

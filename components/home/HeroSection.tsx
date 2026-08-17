@@ -15,7 +15,7 @@ export function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <section ref={ref} className="relative flex h-[92vh] min-h-[560px] items-center justify-center overflow-hidden">
+    <section ref={ref} className="relative flex h-[92vh] min-h-140 items-center justify-center overflow-hidden">
       <motion.div style={{ y }} className="absolute inset-0">
         <Image
           src={ytThumbnail("jFVfxBQjMFU")}

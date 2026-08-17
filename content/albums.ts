@@ -1,14 +1,31 @@
-import type { Album } from "./types";
+import type { Album, Source } from "./types";
 
-const WIKI = { label: "Wikipedia — Vannda", url: "https://en.wikipedia.org/wiki/Vannda" };
-const NME = {
-  label: "NME",
-  url: "https://www.nme.com/news/music/vannda-leaked-skull-2-tracks-release-3349875",
-};
-const BANDWAGON = {
-  label: "Bandwagon Asia",
-  url: "https://www.bandwagon.asia/articles/vannda-takes-no-disrespect-drops-2nd-installment-of-treyvisai-mini-album-trilogy-burn-like-the-sun",
-};
+const SKULL_ALBUM_SOURCES: Source[] = [
+  { label: "Deezer — $kull the Album", url: "https://www.deezer.com/en/album/156253922" },
+  { label: "Apple Music — $kull the Album", url: "https://music.apple.com/us/album/$kull-the-album/1519844558" },
+];
+const SKULL2_SOURCES: Source[] = [
+  { label: "Deezer — SKULL 2 (Season 1)", url: "https://www.deezer.com/en/album/722944861" },
+  { label: "Apple Music — SKULL 2 (Season 1)", url: "https://music.apple.com/us/album/skull-2-season-1/1800385068" },
+];
+const TREYVISAI1_SOURCES: Source[] = [
+  { label: "Spotify — TREYVISAI I", url: "https://open.spotify.com/album/0POR2y1NHYcgp4rQcBefw2" },
+  { label: "Apple Music — TREYVISAI I", url: "https://music.apple.com/am/album/treyvisai-i-the-search-for-light/1799340902" },
+];
+const TREYVISAI2_SOURCES: Source[] = [
+  { label: "Spotify — TREYVISAI II", url: "https://open.spotify.com/album/50FfMzzXAiUYYbIrUvRT8V" },
+  {
+    label: "Bandwagon Asia",
+    url: "https://www.bandwagon.asia/articles/vannda-takes-no-disrespect-drops-2nd-installment-of-treyvisai-mini-album-trilogy-burn-like-the-sun",
+  },
+];
+const TREYVISAI3_SOURCES: Source[] = [
+  { label: "Spotify — TREYVISAI III", url: "https://open.spotify.com/album/3021zdV9VijgzqliBSid8n" },
+  {
+    label: "Apple Music — TREYVISAI III",
+    url: "https://music.apple.com/us/album/treyvisai-iii-return-to-sovannaphum/1811895318",
+  },
+];
 
 export const albums: Album[] = [
   {
@@ -17,12 +34,35 @@ export const albums: Album[] = [
     type: "album",
     era: "skull",
     releaseYear: 2020,
-    releaseDateLabel: "2020",
+    releaseDateLabel: "June 19, 2020",
     description:
       "VannDa's debut full-length album, the project that established him as a rising star of Cambodian hip-hop after several years of self-produced independent releases.",
-    notableTrackSlugs: ["mama"],
+    trackSlugs: [
+      "demon",
+      "out-da-mud",
+      "born-this-way",
+      "hot-boy",
+      "rampage",
+      "youre-already-dead",
+      "life-is-a-bitch",
+      "back-in-the-day-remake",
+      "j-plus-o",
+      "hit-the-road",
+      "black-rose",
+      "move-on",
+      "no-more",
+      "2-minutes-4-you",
+      "voice-memo",
+      "nothing-to-lose",
+      "mama",
+      "wooden-box",
+    ],
+    totalTracks: 18,
     coverYoutubeId: "WNL3zDgWZc0",
-    sources: [WIKI],
+    spotifyUrl: "https://open.spotify.com/album/14B6VlubUa3IWzP9WZzOZZ",
+    appleMusicUrl: "https://music.apple.com/us/album/$kull-the-album/1519844558",
+    deezerUrl: "https://www.deezer.com/en/album/156253922",
+    sources: SKULL_ALBUM_SOURCES,
   },
   {
     slug: "skull-2-season-1",
@@ -30,12 +70,32 @@ export const albums: Album[] = [
     type: "album",
     era: "skull2",
     releaseYear: 2022,
-    releaseDateLabel: "July 2022",
+    releaseDateLabel: "July 1, 2022",
     description:
-      "VannDa's sophomore full-length album, released in the wake of the global breakthrough of \"Time To Rise.\" It includes his first collaboration with OG Bobby (\"Young Man\") and the track \"C.O.D.A.\"",
-    notableTrackSlugs: ["coda", "young-man"],
+      "VannDa's sophomore full-length album, released in the wake of the global breakthrough of \"Time To Rise.\" It includes his first collaboration with OG Bobby (\"Young Man\") and closes with \"C.O.D.A.\"",
+    trackSlugs: [
+      "sometimes",
+      "skull-island",
+      "khmer-blood",
+      "parenthesis",
+      "life-is-a-game",
+      "day-dreamer",
+      "night-thinker",
+      "hows-it-taste",
+      "bok-kalo",
+      "daddy-da",
+      "catch-me-if-you-can",
+      "young-man",
+      "elevator",
+      "king",
+      "coda",
+    ],
+    totalTracks: 15,
     coverYoutubeId: "VYLM-vpdQ1A",
-    sources: [NME],
+    spotifyUrl: "https://open.spotify.com/album/0cfi8xLRuqqfAgaHjjQXQo",
+    appleMusicUrl: "https://music.apple.com/us/album/skull-2-season-1/1800385068",
+    deezerUrl: "https://www.deezer.com/en/album/722944861",
+    sources: SKULL2_SOURCES,
   },
   {
     slug: "treyvisai-i",
@@ -45,10 +105,22 @@ export const albums: Album[] = [
     releaseYear: 2025,
     releaseDateLabel: "March 14, 2025",
     description:
-      "The first installment of VannDa's three-part TREYVISAI mini-album trilogy, opening with high-energy flex tracks including \"Out of My Mind\" and \"Fishing.\"",
-    notableTrackSlugs: ["out-of-my-mind", "fishing"],
+      "The first installment of VannDa's three-part TREYVISAI mini-album trilogy, opening with high-energy flex tracks and led by \"Smoke Up,\" a collaboration with Thai rap icon YOUNGOHM.",
+    trackSlugs: [
+      "here-and-there",
+      "out-of-my-mind",
+      "me-my-flow-and-i",
+      "u-know-u-know",
+      "fishing",
+      "business-class",
+      "smoke-up",
+      "ptsd",
+    ],
+    totalTracks: 8,
     coverYoutubeId: "aSOuRMyxdNA",
-    sources: [BANDWAGON],
+    spotifyUrl: "https://open.spotify.com/album/0POR2y1NHYcgp4rQcBefw2",
+    appleMusicUrl: "https://music.apple.com/am/album/treyvisai-i-the-search-for-light/1799340902",
+    sources: TREYVISAI1_SOURCES,
   },
   {
     slug: "treyvisai-ii",
@@ -58,9 +130,38 @@ export const albums: Album[] = [
     releaseYear: 2025,
     releaseDateLabel: "March 21, 2025",
     description:
-      "The second installment of the TREYVISAI trilogy — its Khmer subtitle translates to \"the compass\" — led by the single \"No Disrespect.\" A third installment is planned to complete the trilogy.",
-    notableTrackSlugs: ["no-disrespect"],
+      "The second installment of the TREYVISAI trilogy — its Khmer subtitle translates to \"the compass\" — led by the single \"No Disrespect.\"",
+    trackSlugs: ["burn", "no-disrespect", "dangerous", "broken-compass", "love-sick-blue", "zerd-zerd", "a-song-for-you"],
+    totalTracks: 7,
     coverYoutubeId: "7t0qrQ0o42M",
-    sources: [BANDWAGON],
+    spotifyUrl: "https://open.spotify.com/album/50FfMzzXAiUYYbIrUvRT8V",
+    sources: TREYVISAI2_SOURCES,
+  },
+  {
+    slug: "treyvisai-iii",
+    title: "TREYVISAI III: Return to Sovannaphum",
+    type: "mini-album",
+    era: "treyvisai",
+    releaseYear: 2025,
+    releaseDateLabel: "May 15, 2025",
+    description:
+      "The closing chapter of the TREYVISAI trilogy, centered on the cinematic pairing of \"Golden Land\" and \"Varman Blood\" — a cultural epic that completes the three-part project.",
+    trackSlugs: [
+      "lakhon-bassac",
+      "360",
+      "the-word-of-vannda",
+      "ah-thma",
+      "metta",
+      "good-old-days",
+      "make-your-luck",
+      "golden-land",
+      "varman-blood",
+      "dont-worry",
+    ],
+    totalTracks: 10,
+    coverYoutubeId: "jFVfxBQjMFU",
+    spotifyUrl: "https://open.spotify.com/album/3021zdV9VijgzqliBSid8n",
+    appleMusicUrl: "https://music.apple.com/us/album/treyvisai-iii-return-to-sovannaphum/1811895318",
+    sources: TREYVISAI3_SOURCES,
   },
 ];

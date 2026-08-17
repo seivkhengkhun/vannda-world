@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Music2 } from "lucide-react";
 import { songs } from "@/content/songs";
+import { albums } from "@/content/albums";
 import { timeline } from "@/content/timeline";
 import { SongCard } from "@/components/music/SongCard";
 import { SongHeroActions } from "@/components/music/SongHeroActions";
@@ -25,6 +28,9 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
   const song = songs.find((s) => s.slug === slug);
   if (!song) notFound();
 
+  const album = song.albumSlug ? albums.find((a) => a.slug === song.albumSlug) : undefined;
+  const thumbnailId = song.youtubeId ?? album?.coverYoutubeId;
+
   const relatedSongs = songs
     .filter((s) => s.slug !== song.slug && s.era === song.era)
     .slice(0, 4);
@@ -34,9 +40,13 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 sm:py-28">
       <div className="grid gap-10 sm:grid-cols-[280px_1fr] sm:items-start">
         <Reveal>
-          <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-hairline">
-            {song.youtubeId && (
-              <Image src={ytThumbnail(song.youtubeId, "hq")} alt={song.title} fill unoptimized className="object-cover" />
+          <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-hairline bg-raised">
+            {thumbnailId ? (
+              <Image src={ytThumbnail(thumbnailId, "hq")} alt={song.title} fill unoptimized className="object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <Music2 className="text-ink-faint" size={40} />
+              </div>
             )}
           </div>
         </Reveal>
@@ -44,8 +54,21 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
           <p className="font-display text-xs uppercase tracking-[0.3em] text-gold">{song.releaseDateLabel}</p>
           <h1 className="mt-3 font-display text-4xl tracking-wide text-ink sm:text-5xl">{song.title}</h1>
           {song.titleKm && <p className="khmer mt-1 text-lg text-ink-dim">{song.titleKm}</p>}
-          {song.featuring.length > 0 && (
-            <p className="mt-3 text-ink-dim">feat. {song.featuring.join(", ")}</p>
+          {song.category === "featured" ? (
+            <p className="mt-3 text-ink-dim">
+              {song.primaryArtist} feat. VannDa
+              {song.featuring.length > 0 ? `, ${song.featuring.join(", ")}` : ""}
+            </p>
+          ) : (
+            song.featuring.length > 0 && <p className="mt-3 text-ink-dim">feat. {song.featuring.join(", ")}</p>
+          )}
+          {album && (
+            <p className="mt-2 text-sm text-ink-faint">
+              Track {song.trackNumber} on{" "}
+              <Link href={`/albums/${album.slug}`} className="text-ink-dim underline decoration-hairline-strong underline-offset-2 hover:text-gold">
+                {album.title}
+              </Link>
+            </p>
           )}
           <SongHeroActions song={song} />
         </Reveal>

@@ -19,7 +19,7 @@ export function VideoLightbox({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-void/95 p-4 backdrop-blur-md sm:p-8"
+          className="fixed inset-0 z-70 flex items-center justify-center bg-void/95 p-4 backdrop-blur-md sm:p-8"
           onClick={onClose}
         >
           <motion.div

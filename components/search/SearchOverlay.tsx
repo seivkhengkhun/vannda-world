@@ -43,7 +43,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] bg-void/95 backdrop-blur-md"
+          className="fixed inset-0 z-60 bg-void/95 backdrop-blur-md"
           onClick={onClose}
         >
           <motion.div
